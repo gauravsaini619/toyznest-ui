@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(file *)",
+      "Bash(sips -g pixelWidth -g pixelHeight -g format hero-1.jpg)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}
