@@ -3,6 +3,7 @@ import { formatINR, toTitleCase } from "@/lib/format";
 import { PlaceholderMedia } from "@/components/shared/placeholder-media";
 import { AddToCartButton } from "@/components/shared/add-to-cart-button";
 import { BuyNowButton } from "@/components/shared/buy-now-button";
+import { Button } from "@/components/ui/button";
 
 export function StickyBuyBar({ product }: { product: Product }) {
   return (
@@ -17,13 +18,21 @@ export function StickyBuyBar({ product }: { product: Product }) {
             {toTitleCase(product.name)}
           </p>
           <span className="text-sm font-bold text-navy">
-            {formatINR(product.priceInPaise)}
+            {product.priceInPaise != null ? formatINR(product.priceInPaise) : "Coming soon"}
           </span>
         </div>
 
         <div className="flex shrink-0 gap-2">
-          <AddToCartButton productId={product.id} variant="secondary" size="commerce" />
-          <BuyNowButton productId={product.id} variant="primary" size="commerce" />
+          {product.priceInPaise != null ? (
+            <>
+              <AddToCartButton productId={product.id} variant="secondary" size="commerce" />
+              <BuyNowButton productId={product.id} variant="primary" size="commerce" />
+            </>
+          ) : (
+            <Button type="button" variant="secondary" size="commerce" disabled>
+              Coming soon
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -42,7 +42,7 @@ export function CartLineItem({ product, quantity }: { product: Product; quantity
           />
           <div className="flex items-baseline gap-2">
             <span className="tn-price text-lg text-ink">
-              {formatINR(product.priceInPaise * quantity)}
+              {formatINR((product.priceInPaise ?? 0) * quantity)}
             </span>
             {product.compareAtPriceInPaise && (
               <span className="text-sm text-ink-muted line-through">

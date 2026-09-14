@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const OCCASIONS = [
   { label: "Birthday gifts", href: "/collection?sort=bestsellers" },
-  { label: "New baby gifts", href: "/collection?age=0-6m" },
+  { label: "New baby gifts", href: "/collection?age=0-1y" },
   { label: "Gifts under ₹999", href: "/collection?sort=price-asc" },
 ];
 

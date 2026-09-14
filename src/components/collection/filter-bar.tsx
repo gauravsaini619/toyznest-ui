@@ -30,10 +30,11 @@ const SORT_LABELS: Record<SortOption, string> = {
   "price-desc": "Price: high to low",
 };
 
-export type PriceBucket = "under-499" | "500-999" | "1000-plus";
+export type PriceBucket = "under-499" | "under-999" | "500-999" | "1000-plus";
 
 export const PRICE_BUCKETS: { id: PriceBucket; label: string }[] = [
   { id: "under-499", label: "Under ₹499" },
+  { id: "under-999", label: "Under ₹999" },
   { id: "500-999", label: "₹500–₹999" },
   { id: "1000-plus", label: "₹1,000+" },
 ];

@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LayoutGrid, List } from "lucide-react";
 import type { AgeBandId, CategorySlug, Product, SkillTag } from "@/lib/types";
 import { PRODUCTS } from "@/lib/data/products";
+import { DRAFT_PRODUCTS } from "@/lib/data/draft-products";
 import { CATEGORIES } from "@/lib/data/categories";
 import { AGE_BANDS } from "@/lib/data/age-bands";
 import { discountPercent } from "@/lib/format";
@@ -21,7 +22,7 @@ import { SignupCapture } from "@/components/shared/signup-capture";
 import { SearchX } from "lucide-react";
 
 const KIT_AGE_SHORTCUT: Record<string, AgeBandId> = {
-  k1: "0-6m",
+  k1: "0-1y",
   k2: "1-2y",
   k3: "3-5y",
   k4: "5-7y",
@@ -31,6 +32,8 @@ function priceMatchesBucket(priceInPaise: number, bucket: PriceBucket): boolean 
   switch (bucket) {
     case "under-499":
       return priceInPaise <= 49900;
+    case "under-999":
+      return priceInPaise <= 99900;
     case "500-999":
       return priceInPaise >= 50000 && priceInPaise <= 99900;
     case "1000-plus":
@@ -49,16 +52,17 @@ function sortProducts(products: Product[], sort: SortOption): Product[] {
       return arr.sort((a, b) => Number(b.badge === "NEW") - Number(a.badge === "NEW"));
     case "sale":
       return arr
-        .filter((p) => p.compareAtPriceInPaise)
+        .filter((p) => p.compareAtPriceInPaise && p.priceInPaise != null)
         .sort(
           (a, b) =>
-            (discountPercent(b.priceInPaise, b.compareAtPriceInPaise) ?? 0) -
-            (discountPercent(a.priceInPaise, a.compareAtPriceInPaise) ?? 0)
+            (discountPercent(b.priceInPaise!, b.compareAtPriceInPaise) ?? 0) -
+            (discountPercent(a.priceInPaise!, a.compareAtPriceInPaise) ?? 0)
         );
     case "price-asc":
-      return arr.sort((a, b) => a.priceInPaise - b.priceInPaise);
+      // Unpriced (draft) products sort to the end regardless of direction.
+      return arr.sort((a, b) => (a.priceInPaise ?? Infinity) - (b.priceInPaise ?? Infinity));
     case "price-desc":
-      return arr.sort((a, b) => b.priceInPaise - a.priceInPaise);
+      return arr.sort((a, b) => (b.priceInPaise ?? -Infinity) - (a.priceInPaise ?? -Infinity));
     default:
       return arr;
   }
@@ -90,12 +94,23 @@ export function CollectionContent() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
-  let results = PRODUCTS.filter((p) => {
+  const normalizedQuery = q?.trim().toLowerCase() ?? "";
+
+  let results = [...PRODUCTS, ...DRAFT_PRODUCTS].filter((p) => {
     if (effectiveAge && p.ageBand !== effectiveAge) return false;
     if (category && p.categorySlug !== category) return false;
     if (skill && !p.skills.includes(skill)) return false;
-    if (priceBucket && !priceMatchesBucket(p.priceInPaise, priceBucket)) return false;
-    if (q && !p.name.toLowerCase().includes(q.toLowerCase())) return false;
+    if (priceBucket && (p.priceInPaise == null || !priceMatchesBucket(p.priceInPaise, priceBucket)))
+      return false;
+    if (normalizedQuery) {
+      // Comma-separated terms match as OR (e.g. "car,truck,train" from a
+      // homepage interest tile); a plain single-word search behaves exactly
+      // like a substring match, same as before.
+      const terms = normalizedQuery.split(",").map((t) => t.trim()).filter(Boolean);
+      const categoryName = CATEGORIES.find((c) => c.slug === p.categorySlug)?.name ?? "";
+      const haystack = [p.name, categoryName, ...p.skills].join(" ").toLowerCase();
+      if (terms.length > 0 && !terms.some((t) => haystack.includes(t))) return false;
+    }
     return true;
   });
   results = sortProducts(results, sort);

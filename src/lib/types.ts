@@ -8,13 +8,13 @@
  */
 
 export type AgeBandId =
-  | "0-6m"
-  | "6-12m"
+  | "0-1y"
   | "1-2y"
   | "2-3y"
   | "3-5y"
   | "5-7y"
-  | "7y-plus";
+  | "7-10y"
+  | "10y-plus";
 
 export interface AgeBand {
   id: AgeBandId;
@@ -71,12 +71,14 @@ export interface Product {
   ageBand: AgeBandId;
   categorySlug: CategorySlug;
   skills: SkillTag[];
-  priceInPaise: number;
+  /** Omitted for draft catalogue entries awaiting real pricing — render a "coming soon" state instead of ₹0. */
+  priceInPaise?: number;
   compareAtPriceInPaise?: number;
   surface: AccentSurface;
   badge?: "BESTSELLER" | "50% OFF" | "NEW";
-  rating: number;
-  reviewCount: number;
+  /** Omitted until the product has real reviews. */
+  rating?: number;
+  reviewCount?: number;
   reviewQuote?: ProductReviewQuote;
   placeholderLabel: string;
   /** PDP bullet list. Falls back to a skills-derived list when omitted. */

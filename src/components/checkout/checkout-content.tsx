@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { PRODUCTS } from "@/lib/data/products";
+import { DRAFT_PRODUCTS } from "@/lib/data/draft-products";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CheckoutContact } from "@/components/checkout/checkout-contact";
 import { CheckoutAddress } from "@/components/checkout/checkout-address";
@@ -23,6 +24,8 @@ const GST_RATE = 0.12;
 const COUPONS: Record<string, number> = {
   NEST10: 0.1,
 };
+
+const ALL_PRODUCTS = [...PRODUCTS, ...DRAFT_PRODUCTS];
 
 export function CheckoutContent({
   buyNowProductId,
@@ -47,17 +50,18 @@ export function CheckoutContent({
 
   const resolvedLines = sourceLines
     .map((line) => ({
-      product: PRODUCTS.find((p) => p.id === line.productId),
+      product: ALL_PRODUCTS.find((p) => p.id === line.productId),
       quantity: line.quantity,
     }))
-    .filter((l): l is { product: (typeof PRODUCTS)[number]; quantity: number } => !!l.product);
+    .filter((l): l is { product: (typeof ALL_PRODUCTS)[number]; quantity: number } => !!l.product);
 
   const itemTotalMrpInPaise = resolvedLines.reduce(
-    (sum, l) => sum + (l.product.compareAtPriceInPaise ?? l.product.priceInPaise) * l.quantity,
+    (sum, l) =>
+      sum + (l.product.compareAtPriceInPaise ?? l.product.priceInPaise ?? 0) * l.quantity,
     0
   );
   const sellingTotalInPaise = resolvedLines.reduce(
-    (sum, l) => sum + l.product.priceInPaise * l.quantity,
+    (sum, l) => sum + (l.product.priceInPaise ?? 0) * l.quantity,
     0
   );
   const discountOnMrpInPaise = itemTotalMrpInPaise - sellingTotalInPaise;

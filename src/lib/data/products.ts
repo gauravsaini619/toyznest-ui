@@ -11,7 +11,7 @@ export const PRODUCTS: Product[] = [
     id: "p13",
     slug: "rainbow-stacking-cups",
     name: "rainbow stacking cups",
-    ageBand: "6-12m",
+    ageBand: "0-1y",
     categorySlug: "wooden-toys",
     skills: ["Fine motor", "Sensory"],
     priceInPaise: 44900,
@@ -34,7 +34,7 @@ export const PRODUCTS: Product[] = [
     id: "p1",
     slug: "wooden-stacking-rings",
     name: "wooden stacking rings",
-    ageBand: "6-12m",
+    ageBand: "0-1y",
     categorySlug: "wooden-toys",
     skills: ["Fine motor", "Cognitive"],
     priceInPaise: 89900,
@@ -59,7 +59,7 @@ export const PRODUCTS: Product[] = [
     id: "p2",
     slug: "sensory-ball-set",
     name: "sensory ball set",
-    ageBand: "0-6m",
+    ageBand: "0-1y",
     categorySlug: "baby-sensory",
     skills: ["Sensory", "Gross motor"],
     priceInPaise: 64900,
@@ -227,7 +227,7 @@ export const PRODUCTS: Product[] = [
     id: "p9",
     slug: "first-words-picture-blocks",
     name: "first-words picture blocks",
-    ageBand: "6-12m",
+    ageBand: "0-1y",
     categorySlug: "books-puzzles",
     skills: ["Language", "Fine motor"],
     priceInPaise: 49900,
@@ -317,8 +317,20 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+/**
+ * Badged bestsellers first, backfilled with the highest-rated remaining
+ * curated products — real, priced items only (never the unpriced draft
+ * catalogue), so "loved right now" always stays purchasable. The 13 curated
+ * products already span wooden/stem/outdoor/pretend-play/books, so 8 items
+ * reads as broader than "wooden toys only" without any fabricated data.
+ */
 export function getBestsellers(): Product[] {
-  return PRODUCTS.filter((p) => p.badge === "BESTSELLER").slice(0, 4);
+  const badged = PRODUCTS.filter((p) => p.badge === "BESTSELLER");
+  const badgedIds = new Set(badged.map((p) => p.id));
+  const rest = [...PRODUCTS]
+    .filter((p) => !badgedIds.has(p.id))
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+  return [...badged, ...rest].slice(0, 8);
 }
 
 export function getNewLaunches(): Product[] {
@@ -329,5 +341,5 @@ export function getNewLaunches(): Product[] {
   const filler = PRODUCTS.filter(
     (p) => !featured.includes(p) && !bestsellerIds.has(p.id)
   );
-  return [...featured, ...filler].slice(0, 4);
+  return [...featured, ...filler].slice(0, 6);
 }

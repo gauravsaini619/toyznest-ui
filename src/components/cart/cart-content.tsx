@@ -2,19 +2,22 @@
 
 import { useCart } from "@/lib/cart-context";
 import { PRODUCTS } from "@/lib/data/products";
+import { DRAFT_PRODUCTS } from "@/lib/data/draft-products";
 import { CartLineItem } from "@/components/cart/cart-line-item";
 import { CartSummary } from "@/components/cart/cart-summary";
 import { CartEmpty } from "@/components/cart/cart-empty";
+
+const ALL_PRODUCTS = [...PRODUCTS, ...DRAFT_PRODUCTS];
 
 export function CartContent() {
   const { lines, subtotalInPaise } = useCart();
 
   const resolvedLines = lines
     .map((line) => ({
-      product: PRODUCTS.find((p) => p.id === line.productId),
+      product: ALL_PRODUCTS.find((p) => p.id === line.productId),
       quantity: line.quantity,
     }))
-    .filter((l): l is { product: (typeof PRODUCTS)[number]; quantity: number } => !!l.product);
+    .filter((l): l is { product: (typeof ALL_PRODUCTS)[number]; quantity: number } => !!l.product);
 
   if (resolvedLines.length === 0) {
     return <CartEmpty />;

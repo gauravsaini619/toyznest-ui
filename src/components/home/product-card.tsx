@@ -4,6 +4,7 @@ import { formatINR, discountPercent } from "@/lib/format";
 import { SURFACE_BG } from "@/lib/surface";
 import { PlaceholderMedia } from "@/components/shared/placeholder-media";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { WishlistButton } from "@/components/shared/wishlist-button";
 import { AddToCartButton } from "@/components/shared/add-to-cart-button";
 import { BuyNowButton } from "@/components/shared/buy-now-button";
@@ -16,10 +17,10 @@ const BADGE_TEXT: Record<NonNullable<Product["badge"]>, string> = {
 };
 
 export function ProductCard({ product }: { product: Product }) {
-  const percentOff = discountPercent(
-    product.priceInPaise,
-    product.compareAtPriceInPaise
-  );
+  const percentOff =
+    product.priceInPaise != null
+      ? discountPercent(product.priceInPaise, product.compareAtPriceInPaise)
+      : null;
   const badgeText = product.badge
     ? BADGE_TEXT[product.badge]
     : percentOff
@@ -68,32 +69,51 @@ export function ProductCard({ product }: { product: Product }) {
         )}
 
         <div className="mt-auto flex items-baseline gap-2">
-          <span className="tn-price text-lg text-white">
-            {formatINR(product.priceInPaise)}
-          </span>
-          {product.compareAtPriceInPaise && (
-            <span className="text-sm text-white/60 line-through">
-              {formatINR(product.compareAtPriceInPaise)}
-            </span>
+          {product.priceInPaise != null ? (
+            <>
+              <span className="tn-price text-lg text-white">
+                {formatINR(product.priceInPaise)}
+              </span>
+              {product.compareAtPriceInPaise && (
+                <span className="text-sm text-white/60 line-through">
+                  {formatINR(product.compareAtPriceInPaise)}
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-sm font-semibold text-white/70">Pricing coming soon</span>
           )}
         </div>
 
-        <ZipBadge />
-
-        <div className="flex gap-2">
-          <AddToCartButton
-            productId={product.id}
+        {product.priceInPaise != null ? (
+          <>
+            <ZipBadge />
+            <div className="flex gap-2">
+              <AddToCartButton
+                productId={product.id}
+                variant="outlineOnNavy"
+                size="sm"
+                className="flex-1 border-white/70 px-2 text-xs"
+              />
+              <BuyNowButton
+                productId={product.id}
+                variant="onNavy"
+                size="sm"
+                className="flex-1 bg-white px-2 text-xs text-navy hover:bg-cream"
+              />
+            </div>
+          </>
+        ) : (
+          <Button
+            type="button"
             variant="outlineOnNavy"
             size="sm"
-            className="flex-1 border-white/70 px-2 text-xs"
-          />
-          <BuyNowButton
-            productId={product.id}
-            variant="onNavy"
-            size="sm"
-            className="flex-1 bg-white px-2 text-xs text-navy hover:bg-cream"
-          />
-        </div>
+            disabled
+            className="w-full border-white/40 text-xs text-white/60"
+          >
+            Coming soon
+          </Button>
+        )}
       </div>
     </article>
   );

@@ -10,6 +10,9 @@ import {
   type ReactNode,
 } from "react";
 import { PRODUCTS } from "@/lib/data/products";
+import { DRAFT_PRODUCTS } from "@/lib/data/draft-products";
+
+const ALL_PRODUCTS = [...PRODUCTS, ...DRAFT_PRODUCTS];
 
 const STORAGE_KEY = "toysnest-cart";
 
@@ -91,10 +94,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     let count = 0;
     let subtotal = 0;
     for (const line of lines) {
-      const product = PRODUCTS.find((p) => p.id === line.productId);
+      const product = ALL_PRODUCTS.find((p) => p.id === line.productId);
       if (!product) continue;
       count += line.quantity;
-      subtotal += product.priceInPaise * line.quantity;
+      subtotal += (product.priceInPaise ?? 0) * line.quantity;
     }
     return { itemCount: count, subtotalInPaise: subtotal };
   }, [lines]);

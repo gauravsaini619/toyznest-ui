@@ -25,7 +25,7 @@ export function CheckoutOrderReview({
               <p className="tn-meta">Qty {quantity}</p>
             </div>
             <span className="text-sm font-bold text-ink">
-              {formatINR(product.priceInPaise * quantity)}
+              {formatINR((product.priceInPaise ?? 0) * quantity)}
             </span>
           </div>
         ))}

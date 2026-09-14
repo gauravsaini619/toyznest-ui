@@ -6,6 +6,7 @@ import { getDisplayBadge } from "@/lib/product-badge";
 import { SAFE_AGE_LABEL } from "@/lib/data/age-bands";
 import { PlaceholderMedia } from "@/components/shared/placeholder-media";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { WishlistButton } from "@/components/shared/wishlist-button";
 import { AddToCartButton } from "@/components/shared/add-to-cart-button";
 import { BuyNowButton } from "@/components/shared/buy-now-button";
@@ -41,23 +42,33 @@ export function CollectionProductRow({ product }: { product: Product }) {
           >
             {toTitleCase(product.name)}
           </Link>
-          <div className="mt-1 flex items-center gap-1.5">
-            <Star className="size-3.5 fill-star text-star" aria-hidden />
-            <span className="text-sm font-bold text-ink">{product.rating}</span>
-            <span className="text-sm text-ink-muted">({product.reviewCount})</span>
-          </div>
-          <ZipBadge variant="onLight" className="mt-1.5" />
+          {product.rating != null && product.reviewCount != null && (
+            <div className="mt-1 flex items-center gap-1.5">
+              <Star className="size-3.5 fill-star text-star" aria-hidden />
+              <span className="text-sm font-bold text-ink">{product.rating}</span>
+              <span className="text-sm text-ink-muted">({product.reviewCount})</span>
+            </div>
+          )}
+          {product.priceInPaise != null && (
+            <ZipBadge variant="onLight" className="mt-1.5" />
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-4">
           <div className="flex items-baseline gap-2">
-            <span className="tn-price text-lg text-navy">
-              {formatINR(product.priceInPaise)}
-            </span>
-            {product.compareAtPriceInPaise && (
-              <span className="text-sm text-ink-muted line-through">
-                {formatINR(product.compareAtPriceInPaise)}
-              </span>
+            {product.priceInPaise != null ? (
+              <>
+                <span className="tn-price text-lg text-navy">
+                  {formatINR(product.priceInPaise)}
+                </span>
+                {product.compareAtPriceInPaise && (
+                  <span className="text-sm text-ink-muted line-through">
+                    {formatINR(product.compareAtPriceInPaise)}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="text-sm font-semibold text-ink-muted">Pricing coming soon</span>
             )}
           </div>
           <WishlistButton
@@ -65,8 +76,16 @@ export function CollectionProductRow({ product }: { product: Product }) {
             productName={product.name}
             className="static bg-sand hover:bg-hairline"
           />
-          <AddToCartButton productId={product.id} variant="secondary" size="sm" />
-          <BuyNowButton productId={product.id} variant="primary" size="sm" />
+          {product.priceInPaise != null ? (
+            <>
+              <AddToCartButton productId={product.id} variant="secondary" size="sm" />
+              <BuyNowButton productId={product.id} variant="primary" size="sm" />
+            </>
+          ) : (
+            <Button type="button" variant="secondary" size="sm" disabled>
+              Coming soon
+            </Button>
+          )}
         </div>
       </div>
     </article>

@@ -5,13 +5,17 @@ import { cn } from "cn";
 export function SectionHeading({
   eyebrow,
   title,
+  subtitle,
   viewAllHref,
+  viewAllLabel = "View all",
   onNavy = false,
   className,
 }: {
   eyebrow?: string;
   title: string;
+  subtitle?: string;
   viewAllHref?: string;
+  viewAllLabel?: string;
   onNavy?: boolean;
   className?: string;
 }) {
@@ -41,6 +45,16 @@ export function SectionHeading({
         >
           {title}
         </h2>
+        {subtitle && (
+          <p
+            className={cn(
+              "tn-body mt-2",
+              onNavy ? "text-white/80" : "text-ink-muted"
+            )}
+          >
+            {subtitle}
+          </p>
+        )}
       </div>
       {viewAllHref && (
         <Link
@@ -52,7 +66,7 @@ export function SectionHeading({
               : "border-navy text-navy hover:bg-navy hover:text-white"
           )}
         >
-          View all
+          {viewAllLabel}
           <ArrowRight className="size-3.5" aria-hidden />
         </Link>
       )}

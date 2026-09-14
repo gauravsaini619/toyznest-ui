@@ -7,6 +7,6 @@ import type { Product } from "@/lib/types";
  */
 export function getDisplayBadge(product: Product): string | null {
   if (product.badge) return product.badge;
-  if (product.rating >= 4.9) return "TOP RATED";
+  if (product.rating != null && product.rating >= 4.9) return "TOP RATED";
   return null;
 }

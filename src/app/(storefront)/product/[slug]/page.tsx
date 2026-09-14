@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PRODUCTS } from "@/lib/data/products";
+import { DRAFT_PRODUCTS } from "@/lib/data/draft-products";
 import { PRODUCT_DETAILS } from "@/lib/data/product-details";
+import { DRAFT_PRODUCT_DETAILS } from "@/lib/data/draft-product-details";
+
+const ALL_PRODUCTS = [...PRODUCTS, ...DRAFT_PRODUCTS];
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductBuyBlock } from "@/components/product/product-buy-block";
 import { StickyBuyBar } from "@/components/product/sticky-buy-bar";
@@ -14,7 +18,7 @@ import { RelatedProducts } from "@/components/product/related-products";
 import { SignupCapture } from "@/components/shared/signup-capture";
 
 export function generateStaticParams() {
-  return PRODUCTS.map((product) => ({ slug: product.slug }));
+  return ALL_PRODUCTS.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
@@ -23,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = PRODUCTS.find((p) => p.slug === slug);
+  const product = ALL_PRODUCTS.find((p) => p.slug === slug);
   return { title: product?.name ?? "Product" };
 }
 
@@ -33,10 +37,10 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = PRODUCTS.find((p) => p.slug === slug);
+  const product = ALL_PRODUCTS.find((p) => p.slug === slug);
   if (!product) notFound();
 
-  const detail = PRODUCT_DETAILS[slug];
+  const detail = PRODUCT_DETAILS[slug] ?? DRAFT_PRODUCT_DETAILS[slug];
 
   return (
     <>

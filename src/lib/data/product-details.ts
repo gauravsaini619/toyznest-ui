@@ -1,5 +1,6 @@
 import type { FaqItem, LegalInfo, ProductDetailExtra, RelatedTeaser } from "@/lib/types";
 import { PRODUCTS } from "@/lib/data/products";
+import { DRAFT_PRODUCTS } from "@/lib/data/draft-products";
 
 /**
  * PDP-only content keyed by product slug. Static for now — will become a
@@ -9,7 +10,7 @@ import { PRODUCTS } from "@/lib/data/products";
 
 const PILLARS = ["Stage Matched", "Made To Last", "Non-Toxic & BIS Certified", "Panel Reviewed"];
 
-const LEGAL_INFO: LegalInfo = {
+export const LEGAL_INFO: LegalInfo = {
   marketedBy: [
     "Toyznest Retail Pvt. Ltd.",
     "B-42, Sector 63, Ghaziabad, Uttar Pradesh – 201301",
@@ -26,7 +27,7 @@ const LEGAL_INFO: LegalInfo = {
   ],
 };
 
-const GENERIC_FAQ_TAIL: FaqItem[] = [
+export const GENERIC_FAQ_TAIL: FaqItem[] = [
   {
     question: "How long does delivery take?",
     answer: "Same-day in Delhi/NCR on orders before 2 PM; 2–4 days pan-India.",
@@ -38,7 +39,7 @@ const GENERIC_FAQ_TAIL: FaqItem[] = [
 ];
 
 /** Deterministic 5→1 star split, weighted by the product's aggregate rating. */
-function buildDistribution(
+export function buildDistribution(
   reviewCount: number,
   rating: number
 ): [number, number, number, number, number] {
@@ -52,16 +53,18 @@ function buildDistribution(
   return [five, four, three, two, one];
 }
 
-/** Rotates a window of 4 other catalogue products for the "parents also picked" rail. */
-function buildRelated(slug: string): RelatedTeaser[] {
-  const idx = PRODUCTS.findIndex((p) => p.slug === slug);
-  const others = PRODUCTS.filter((p) => p.slug !== slug);
+const ALL_CATALOGUE_PRODUCTS = [...PRODUCTS, ...DRAFT_PRODUCTS];
+
+/** Rotates a window of 4 other catalogue products (curated + draft) for the "parents also picked" rail. */
+export function buildRelated(slug: string): RelatedTeaser[] {
+  const idx = ALL_CATALOGUE_PRODUCTS.findIndex((p) => p.slug === slug);
+  const others = ALL_CATALOGUE_PRODUCTS.filter((p) => p.slug !== slug && p.priceInPaise != null);
   const start = ((idx < 0 ? 0 : idx) * 3) % others.length;
   const rotated = [...others.slice(start), ...others.slice(0, start)].slice(0, 4);
   return rotated.map((p) => ({
     productId: p.id,
     name: p.name,
-    priceInPaise: p.priceInPaise,
+    priceInPaise: p.priceInPaise ?? 0,
     compareAtPriceInPaise: p.compareAtPriceInPaise,
     surface: p.surface,
     href: `/product/${p.slug}`,

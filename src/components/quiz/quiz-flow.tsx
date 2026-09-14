@@ -32,13 +32,13 @@ const BUDGETS = [
 ];
 
 const KIT_FOR_AGE: Record<string, string> = {
-  "0-6m": "k1",
-  "6-12m": "k1",
+  "0-1y": "k1",
   "1-2y": "k2",
   "2-3y": "k2",
   "3-5y": "k3",
   "5-7y": "k4",
-  "7y-plus": "k4",
+  "7-10y": "k4",
+  "10y-plus": "k4",
 };
 
 const STEPS = ["Stage", "Skills", "Budget", "Results"] as const;
@@ -55,11 +55,11 @@ export function QuizFlow() {
     if (!age || budget === null) return [];
     const filtered = PRODUCTS.filter((p) => {
       if (p.ageBand !== age) return false;
-      if (p.priceInPaise > budget) return false;
+      if ((p.priceInPaise ?? Infinity) > budget) return false;
       if (skills.length > 0 && !skills.some((s) => p.skills.includes(s))) return false;
       return true;
     });
-    return filtered.sort((a, b) => b.rating - a.rating).slice(0, 3);
+    return filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 3);
   }, [age, skills, budget]);
 
   const suggestedKit = age ? PLAY_KITS.find((k) => k.id === KIT_FOR_AGE[age]) : undefined;
