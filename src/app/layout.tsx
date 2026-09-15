@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Outfit, Mulish } from "next/font/google";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
+import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { WishlistProvider } from "@/lib/wishlist-context";
 import { AddressBookProvider } from "@/lib/addresses-context";
 import { ContactProvider } from "@/lib/contact-context";
+import { LoginModal } from "@/components/shared/login-modal";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -46,13 +48,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <ConvexClientProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <AddressBookProvider>
-                <ContactProvider>{children}</ContactProvider>
-              </AddressBookProvider>
-            </WishlistProvider>
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <AddressBookProvider>
+                  <ContactProvider>
+                    {children}
+                    <LoginModal />
+                  </ContactProvider>
+                </AddressBookProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
         </ConvexClientProvider>
       </body>
     </html>

@@ -9,6 +9,8 @@ import { PRIMARY_NAV, MEGA_MENUS } from "@/lib/data/nav";
 import { AGE_BANDS } from "@/lib/data/age-bands";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
+import { useAuth } from "@/lib/auth-context";
+import { toTitleCase } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,6 +31,10 @@ import {
 /** "Shop" gets the full-bleed multi-column mega panel; every other menu-bearing label is a single-column list, better suited to the compact Radix dropdown. */
 const MEGA_PANEL_LABEL = "Shop";
 
+function firstName(fullName: string): string {
+  return toTitleCase(fullName.trim().split(/\s+/)[0] ?? "");
+}
+
 export function SiteHeader() {
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -37,6 +43,7 @@ export function SiteHeader() {
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { itemCount: cartCount } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { isLoggedIn, profile, openLogin } = useAuth();
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,10 +151,18 @@ export function SiteHeader() {
 
           <Link
             href="/account"
+            onClick={(e) => {
+              if (!isLoggedIn) {
+                e.preventDefault();
+                openLogin();
+              }
+            }}
             className="flex flex-col items-center gap-0.5 text-ink transition-colors hover:text-navy"
           >
             <User className="size-5" aria-hidden />
-            <span className="hidden text-[11px] font-semibold sm:block">Profile</span>
+            <span className="hidden text-[11px] font-semibold sm:block">
+              {isLoggedIn && profile ? firstName(profile.name) : "Profile"}
+            </span>
           </Link>
 
           <Link
